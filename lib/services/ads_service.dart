@@ -129,7 +129,13 @@ class _RewardedAdListener with LevelPlayRewardedAdListener {
   void onAdHidden(LevelPlayAdInfo adInfo) {}
 
   @override
-  void onAdRewarded(LevelPlayAdReward reward, LevelPlayAdInfo adInfo) {
+  void onAdClicked(LevelPlayAdInfo adInfo) {}
+
+  @override
+  void onAdClosed(LevelPlayAdInfo adInfo) {}
+
+  @override
+  void onAdRewarded(LevelPlayReward reward, LevelPlayAdInfo adInfo) {
     onReward();
   }
 
