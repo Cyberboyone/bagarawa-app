@@ -8,15 +8,19 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Enables background playback + lock-screen controls for audio.
-  await JustAudioBackground.init(
-    androidNotificationChannelId: 'com.example.islamic_audio_app.channel.audio',
-    androidNotificationChannelName: 'Daily Reflections Audio',
-    androidNotificationOngoing: true,
-  );
+  try {
+    await JustAudioBackground.init(
+      androidNotificationChannelId: 'com.example.bagarawa_app.channel.audio',
+      androidNotificationChannelName: 'Bagarawa Audio',
+      androidNotificationOngoing: true,
+    );
+  } catch (_) {}
 
   // Fire-and-forget: ads only ever fetch in the background when data is
   // available, and never block app startup or offline audio playback.
-  AdsService.instance.start();
+  try {
+    AdsService.instance.start();
+  } catch (_) {}
 
   runApp(const IslamicAudioApp());
 }
@@ -27,7 +31,7 @@ class IslamicAudioApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Daily Reflections',
+      title: 'Bagarawa',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
