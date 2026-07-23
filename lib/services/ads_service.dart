@@ -5,16 +5,9 @@ import 'package:unity_levelplay_mediation/unity_levelplay_mediation.dart';
 /// Wraps Unity LevelPlay (formerly "Unity Ads") so the rest of the app
 /// never talks to the ad SDK directly.
 ///
-/// Design intent for this app: listening to audio is 100% offline and
-/// must never depend on network or ads in any way. Ads are a bonus
-/// revenue layer that quietly preload in the background *only* when the
-/// device has data - and are shown at natural break points (never mid-
-/// playback). If there's no connection, the app just runs ad-free for
-/// that session; nothing blocks, nothing errors out to the user.
-///
 /// IMPORTANT - replace every placeholder below with the real IDs from your
 /// Unity LevelPlay dashboard (https://dashboard.unity3d.com) before release.
-class AdsService {
+class AdsService extends LevelPlayInitListener {
   AdsService._();
   static final AdsService instance = AdsService._();
 
@@ -43,14 +36,10 @@ class AdsService {
   String get _interstitialAdUnitId =>
       Platform.isIOS ? _interstitialAdUnitIOS : _interstitialAdUnitAndroid;
 
-  /// Call once from main(). This never throws and never blocks app
-  /// startup - it just kicks off background work and returns immediately.
+  /// Call once from main(). This never throws and never blocks app startup.
   Future<void> start() async {
-    // Try once right away in case data is already on...
     _tryInitAndLoadIfOnline();
 
-    // ...and keep listening so we pick up ads as soon as data turns on,
-    // even mid-session (e.g. user was offline, then connects to wifi).
     _connectivity.onConnectivityChanged.listen((results) {
       final hasConnection =
           results.any((r) => r != ConnectivityResult.none);
@@ -65,20 +54,19 @@ class AdsService {
 
     final result = await _connectivity.checkConnectivity();
     final online = result.any((r) => r != ConnectivityResult.none);
-    if (!online) return; // stay silent - fully expected when offline
+    if (!online) return;
 
     _initializing = true;
     try {
       if (!_sdkInitialized) {
-        await LevelPlay.init(appKey: _appKey, legacyAdFormats: []);
+        final initRequest = LevelPlayInitRequest.builder(_appKey).build();
+        await LevelPlay.init(initRequest: initRequest, initListener: this);
         _sdkInitialized = true;
       }
 
       _rewardedAd ??= LevelPlayRewardedAd(adUnitId: _rewardedAdUnitId);
       _interstitialAd ??= LevelPlayInterstitialAd(adUnitId: _interstitialAdUnitId);
 
-      // Preload in the background. Failures here (e.g. flaky connection)
-      // are swallowed - we just try again next time connectivity changes.
       _rewardedAd?.loadAd();
       _interstitialAd?.loadAd();
     } catch (_) {
@@ -88,33 +76,48 @@ class AdsService {
     }
   }
 
-  /// Show an interstitial at a natural break point - e.g. after a lesson
-  /// finishes, before returning to the library screen. Does nothing (and
-  /// never blocks) if no ad happened to preload in time.
+  // --- LevelPlayInitListener callbacks ---
+
+  @override
+  void onInitSuccess(LevelPlayConfiguration configuration) {
+    // SDK initialized successfully - ads can now be loaded.
+  }
+
+  @override
+  void onInitFailed(LevelPlayInitError error) {
+    // Initialization failed - will retry on next connectivity change.
+    _sdkInitialized = false;
+  }
+
+  /// Show an interstitial at a natural break point.
   Future<void> showInterstitialIfReady() async {
     final ad = _interstitialAd;
     if (ad == null) return;
     if (await ad.isAdReady()) {
       await ad.showAd();
-      ad.loadAd(); // preload the next one for later
+      ad.loadAd();
     }
   }
 
-  /// Show a rewarded ad, e.g. to unlock a bonus lecture or offline
-  /// download. [onReward] fires only if the user actually completes it.
-  /// If no ad is ready (e.g. no connection this session), this simply
-  /// does nothing - callers should design the unlock flow so that's fine.
+  /// Show a rewarded ad. [onReward] fires only if the user completes it.
   Future<void> showRewardedAd({required void Function() onReward}) async {
     final ad = _rewardedAd;
     if (ad == null) return;
     if (await ad.isAdReady()) {
-      ad.setListener(
-        LevelPlayRewardedAdListener(
-          onAdRewarded: (adInfo, reward) => onReward(),
-        ),
-      );
+      ad.setListener(_RewardedAdListener(onReward: onReward));
       await ad.showAd();
       ad.loadAd();
     }
+  }
+}
+
+class _RewardedAdListener with LevelPlayRewardedAdListener {
+  final void Function() onReward;
+
+  _RewardedAdListener({required this.onReward});
+
+  @override
+  void onAdRewarded(LevelPlayAdInfo adInfo, LevelPlayAdReward reward) {
+    onReward();
   }
 }
