@@ -79,13 +79,10 @@ class AdsService extends LevelPlayInitListener {
   // --- LevelPlayInitListener callbacks ---
 
   @override
-  void onInitSuccess(LevelPlayConfiguration configuration) {
-    // SDK initialized successfully - ads can now be loaded.
-  }
+  void onInitSuccess(LevelPlayConfiguration configuration) {}
 
   @override
   void onInitFailed(LevelPlayInitError error) {
-    // Initialization failed - will retry on next connectivity change.
     _sdkInitialized = false;
   }
 
@@ -117,7 +114,25 @@ class _RewardedAdListener with LevelPlayRewardedAdListener {
   _RewardedAdListener({required this.onReward});
 
   @override
-  void onAdRewarded(LevelPlayAdInfo adInfo, LevelPlayAdReward reward) {
+  void onAdLoaded(LevelPlayAdInfo adInfo) {}
+
+  @override
+  void onAdLoadFailed(LevelPlayAdError error) {}
+
+  @override
+  void onAdDisplayed(LevelPlayAdInfo adInfo) {}
+
+  @override
+  void onAdDisplayFailed(LevelPlayAdError error, LevelPlayAdInfo adInfo) {}
+
+  @override
+  void onAdHidden(LevelPlayAdInfo adInfo) {}
+
+  @override
+  void onAdRewarded(LevelPlayAdReward reward, LevelPlayAdInfo adInfo) {
     onReward();
   }
+
+  @override
+  void onAdInfoChanged(LevelPlayAdInfo adInfo) {}
 }
