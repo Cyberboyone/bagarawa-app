@@ -1,0 +1,42 @@
+name: islamic_audio_app
+description: Offline audio lessons app - morning & night reflections.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Audio playback (offline, background, lock-screen controls)
+  just_audio: ^0.9.40
+  just_audio_background: ^0.0.1-beta.13
+
+  # Local persistence for streaks / progress / saved clips
+  shared_preferences: ^2.2.3
+
+  # Unity LevelPlay ad mediation (rewarded / interstitial / banner)
+  # Formerly published as `ironsource_mediation` - renamed in v9.0.0
+  unity_levelplay_mediation: ^9.0.0
+
+  # Lets the ads service know when data is available, so it only tries
+  # to fetch ads in the background when there's a connection - never
+  # blocking or affecting offline audio playback.
+  connectivity_plus: ^6.0.5
+
+  cupertino_icons: ^1.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/audio/
+    - assets/images/
+    - assets/data/lessons.json
