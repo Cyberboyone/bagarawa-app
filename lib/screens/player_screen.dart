@@ -474,24 +474,11 @@ color: AppColors.accent.withValues(alpha: 0.1),
                   color: AppColors.textSecondary,
                 ),
               ),
-
-              Neumorphic(
-                borderRadius: 20,
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 20, vertical: 10),
-                child: const Text(
-                  'Created by : Bagarawa',
-                  style: TextStyle(
-                      color: AppColors.textPrimary, fontSize: 13),
-                ),
-              ),
-
-              const SizedBox(height: 12),
-                    ],
-                  ),
-                ),
-              ),
-            );
+            ],
+          ),
+        ),
+      ),
+    );
           },
         ),
       ),
