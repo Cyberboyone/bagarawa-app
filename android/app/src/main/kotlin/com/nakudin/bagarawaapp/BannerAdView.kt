@@ -7,18 +7,25 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import io.flutter.plugin.common.BinaryMessenger
-import io.flutter.plugin.platform.PlatformView
+import io.flutter.plugin.common.PlatformView
 
 class BannerAdView(context: Context, messenger: BinaryMessenger, id: Int, params: Map<String, Any?>) : PlatformView {
 
     private val container = FrameLayout(context)
 
     init {
-        val adView = AdView(context)
-        adView.adUnitId = "ca-app-pub-9529770421530115/3303051802"
-        adView.setAdSize(AdSize.BANNER)
+        // Serve a pre-loaded ad from the background pool when available so
+        // banners render instantly; otherwise fall back to a fresh request.
+        val adView = AdPreloader.pollAd() ?: createFreshAd(context)
         container.addView(adView)
+    }
+
+    private fun createFreshAd(context: Context): AdView {
+        val adView = AdView(context)
+        adView.adUnitId = AdPreloader.AD_UNIT_ID
+        adView.setAdSize(AdSize.BANNER)
         adView.loadAd(AdRequest.Builder().build())
+        return adView
     }
 
     override fun getView(): View = container

@@ -58,8 +58,8 @@ jobs:
       - name: Build release AAB (Play Store)
         run: flutter build appbundle --release
 
-      - name: Build release APK
-        run: flutter build apk --release
+      - name: Build release APKs (split per ABI for smaller downloads)
+        run: flutter build apk --release --split-per-abi
 
       - name: Upload AAB artifact
         uses: actions/upload-artifact@v4
@@ -68,11 +68,11 @@ jobs:
           path: build/app/outputs/bundle/release/app-release.aab
           if-no-files-found: error
 
-      - name: Upload release APK artifact
+      - name: Upload release APK artifacts
         uses: actions/upload-artifact@v4
         with:
           name: bagarawa-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: build/app/outputs/flutter-apk/app-*-release.apk
           if-no-files-found: error
 
       - name: Upload debug APK artifact
@@ -103,5 +103,5 @@ jobs:
           tag_name: ${{ github.event.inputs.release_tag }}
           files: |
             dist/app-release.aab
-            dist/app-release.apk
+            dist/*-release.apk
           generate_release_notes: true

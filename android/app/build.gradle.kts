@@ -52,6 +52,13 @@ android {
             } else {
                 signingConfigs.getByName("debug")
             }
+            // Shrink code and resources for a smaller download.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 }

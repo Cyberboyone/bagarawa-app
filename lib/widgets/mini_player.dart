@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import '../services/player_service.dart';
@@ -12,17 +14,20 @@ class MiniPlayer extends StatefulWidget {
 }
 
 class _MiniPlayerState extends State<MiniPlayer> {
+  StreamSubscription<PlayerState>? _playingSub;
+
   @override
   void initState() {
     super.initState();
     PlayerService.instance.tick.addListener(_rebuild);
-    PlayerService.instance.player.playingStream.listen((_) {
+    _playingSub = PlayerService.instance.player.playingStream.listen((_) {
       if (mounted) setState(() {});
     });
   }
 
   @override
   void dispose() {
+    _playingSub?.cancel();
     PlayerService.instance.tick.removeListener(_rebuild);
     super.dispose();
   }
