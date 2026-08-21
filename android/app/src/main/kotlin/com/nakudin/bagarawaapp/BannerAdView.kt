@@ -7,7 +7,7 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import io.flutter.plugin.common.BinaryMessenger
-import io.flutter.plugin.common.PlatformView
+import io.flutter.plugin.platform.PlatformView
 
 class BannerAdView(context: Context, messenger: BinaryMessenger, id: Int, params: Map<String, Any?>) : PlatformView {
 
