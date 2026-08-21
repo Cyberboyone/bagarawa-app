@@ -14,7 +14,7 @@ class MiniPlayer extends StatefulWidget {
 }
 
 class _MiniPlayerState extends State<MiniPlayer> {
-  StreamSubscription<PlayerState>? _playingSub;
+  StreamSubscription<bool>? _playingSub;
 
   @override
   void initState() {
