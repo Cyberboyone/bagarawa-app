@@ -6,5 +6,9 @@
 -dontwarn com.google.android.gms.**
 -keep class com.google.android.gms.ads.** { *; }
 
+# Play Core classes are optional at runtime (deferred components); the
+# Flutter engine references them but they are not on the compile classpath.
+-dontwarn com.google.android.play.core.**
+
 # Flutter engine JNI callbacks.
 -keep class io.flutter.embedding.** { *; }
